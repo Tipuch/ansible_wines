@@ -1,0 +1,12 @@
+---
+- hosts: allservers
+  become: yes
+  become_user: root
+  remote_user: "{{ ansible_remote_user }}"
+  vars_files:
+    - group_vars/secrets.yml
+    - group_vars/all.yml
+  roles:
+    - common
+    - geerlingguy.postgresql
+    - geerlingguy.nginx

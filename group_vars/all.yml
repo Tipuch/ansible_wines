@@ -1,0 +1,6 @@
+ansible_remote_user: ubuntu
+postgresql_databases:
+  - name: wines
+postgresql_users:
+  - name: wines_user
+    password: "{{ secret_psql_password }}"
