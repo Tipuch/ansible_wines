@@ -1,0 +1,21 @@
+---
+- name: Supervisord install
+  package:
+    name: supervisor
+    state: present
+  tags: packages
+- name: Supervisord service
+  service:
+    name: supervisor
+    state: started
+    enabled: yes
+- name: Supervisord conf setup
+  template:
+    src: supervisor_conf.j2
+    dest: "/etc/supervisor/conf.d/{{ project_name }}.conf"
+    backup: yes
+  notify: restart application
+- name: Re-read Supervisor conf files
+  supervisorctl:
+    name: "{{ project_name }}"
+    state: present

@@ -4,3 +4,11 @@ postgresql_databases:
 postgresql_users:
   - name: wines_user
     password: "{{ secret_psql_password }}"
+git_repo: "https://github.com/Tipuch/wines.git"
+git_branch: master
+nginx_group: www-data
+project_name: wines
+project_path: "/home/{{ ansible_remote_user }}/{{ project_name }}"
+application_log_file: "{{ project_path }}/{{ project_name }}.log"
+project_user: "{{ ansible_remote_user }}"
+secret_key: "{{ secret_secret_key }}"

@@ -1,0 +1,6 @@
+[program:{{ project_name }}]
+command = {{ project_path }}/target/release/{{ project_name }}
+user = {{ project_user }}
+stdout_logfile = {{ application_log_file }}
+redirect_stderr = true
+environment = DATABASE_URL="postgres://{{ postgresql_users.0.name }}:{{ postgresql_users.0.password }}@localhost/{{ postgresql_databases.0.name }}",SECRET_KEY="{{ secret_key }}"

@@ -1,0 +1,60 @@
+---
+- name: Update repository
+  git: 
+    repo: "{{ git_repo }}"
+    version: "{{ git_branch }}"
+    dest: "{{ project_path }}"
+    accept_hostkey: yes
+    force: yes
+  register: git_update
+  notify: restart application
+  tags: deploy
+- name: Build application
+  command: cargo build --release
+  args:
+    chdir: "{{ project_path }}"
+  when: git_update.before != git_update.after
+  notify: restart application
+  tags: deploy
+- name: Setup .env file
+  template:
+    src: env.j2
+    dest: "{{ project_path }}/.env"
+  notify: restart application
+  tags: deploy
+- name: Set permissions
+  file:
+    dest: "{{ project_path }}"
+    owner: "{{ project_user }}"
+    group: "{{ nginx_group }}"
+    recurse: yes
+  tags: deploy
+- name: Check diesel cli install
+  stat:
+    path: "/home/{{ ansible_remote_user }}/.cargo/bin/diesel"
+  register: diesel_cli_installed
+  tags: deploy
+- name: Install diesel cli
+  command: cargo install diesel_cli --no-default-features --features postgres
+  when: not diesel_cli_installed.stat.exists
+  tags: deploy
+- name: Add to path
+  copy:
+    dest: /etc/profile.d/cargo-path.sh
+    content: 'PATH=$PATH:/home/{{ ansible_remote_user }}/.cargo/bin'
+  tags: deploy
+- name: Diesel setup
+  command: diesel setup
+  args:
+    chdir: "{{ project_path }}"
+  environment:
+    PATH: '/home/{{ ansible_remote_user }}/.cargo/bin:{{ ansible_env.PATH }}'
+  tags: deploy
+- name: Diesel migrations
+  command: diesel migration run
+  args:
+    chdir: "{{ project_path }}"
+  environment:
+    PATH: '/home/{{ ansible_remote_user }}/.cargo/bin:{{ ansible_env.PATH }}'
+  tags: deploy
+  

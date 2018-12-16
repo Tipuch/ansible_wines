@@ -1,0 +1,1 @@
+rust_installer_path: "/home/{{ ansible_remote_user }}/rustup.sh"

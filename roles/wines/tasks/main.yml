@@ -1,0 +1,31 @@
+---
+- name: Install necessary packages
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - libssl-dev
+    - pkg-config
+- stat:
+    path: /usr/local/bin/rustc
+  register: rust_installed
+  tags:
+    - rust
+- name: Download Rust installer
+  get_url:
+    url: https://static.rust-lang.org/rustup.sh
+    dest: "{{ rust_installer_path }}"
+    mode: 0700
+  when: not rust_installed.stat.exists
+  tags:
+    - rust
+- name: Install Rust
+  command: "{{ rust_installer_path }}"
+  when: not rust_installed.stat.exists
+  tags:
+    - rust
+- name: Project setup
+  import_tasks: project.yml
+- name: Supervisord setup
+  import_tasks: supervisor.yml
+
