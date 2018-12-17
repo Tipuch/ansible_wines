@@ -7,7 +7,7 @@
     - group_vars/secrets.yml
     - group_vars/all.yml
   roles:
-    # - common
-    # - geerlingguy.postgresql
-    # - geerlingguy.nginx
+    - common
+    - geerlingguy.postgresql
     - wines
+    - geerlingguy.nginx
