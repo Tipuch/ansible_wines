@@ -7,7 +7,6 @@
     accept_hostkey: yes
     force: yes
   register: git_update
-  notify: restart application
   tags: deploy
 - name: Build application
   command: cargo build --release

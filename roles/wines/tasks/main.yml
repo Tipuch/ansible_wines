@@ -32,14 +32,33 @@
   copy:
     content: "{{ nginx_certificate }}"
     dest: "{{ nginx_certificate_path }}"
-    owner: "{{ nginx_user }}"
+    owner: "{{ project_user }}"
     group: "{{ nginx_group }}"
     mode: 0644
+  tags: deploy
+  notify: restart application
 - name: Nginx ssl key setup
   copy:
     content: "{{ nginx_key }}"
     dest: "{{ nginx_key_path }}"
-    owner: "{{ nginx_user }}"
+    owner: "{{ project_user }}"
     group: "{{ nginx_group }}"
-    mode: 0600
+    mode: 0660
   no_log: true
+  tags: deploy
+  notify: restart application
+- name: Copy cron script
+  template:
+    src: crawl_saq.j2
+    dest: "/home/{{ project_user }}/crawl_saq.sh"
+    mode: 0770
+    owner: "{{ project_user }}"
+# every monday at 4:00 a.m
+- name: Set up crawl cron
+  cron:
+    name: crawl saq
+    hour: 4
+    minute: 0  
+    weekday: 1
+    job: "/home/{{ project_user }}/crawl_saq.sh"
+    state: present
