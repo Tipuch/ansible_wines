@@ -32,16 +32,13 @@
   stat:
     path: "/home/{{ ansible_remote_user }}/.cargo/bin/diesel"
   register: diesel_cli_installed
-  tags: deploy
 - name: Install diesel cli
   command: cargo install diesel_cli --no-default-features --features postgres
   when: not diesel_cli_installed.stat.exists
-  tags: deploy
 - name: Add to path
   copy:
     dest: /etc/profile.d/cargo-path.sh
     content: 'PATH=$PATH:/home/{{ ansible_remote_user }}/.cargo/bin'
-  tags: deploy
 - name: Diesel setup
   command: diesel setup
   args:
