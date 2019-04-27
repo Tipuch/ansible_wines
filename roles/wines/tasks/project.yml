@@ -8,6 +8,15 @@
     force: yes
   register: git_update
   tags: deploy
+- name: Check lock file
+  stat:
+    path: "{{ project_path }}/Cargo.lock"
+  register: cargo_lock
+- name: Update lock file
+  command: cargo update
+  args:
+    chdir: "{{ project_path }}"
+  when: cargo_lock.stat.exists
 - name: Build application
   command: cargo build --release
   args:
