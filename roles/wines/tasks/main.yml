@@ -11,17 +11,29 @@
   register: rust_installed
   tags:
     - rust
+- name: Cleanup old Rust installer
+  file:
+    path: "{{ rust_installer_path }}"
+    state: absent
+  when: upgrade_rust|bool
+  tags:
+    - rust
+- name: Uninstall old Rust version
+  command: "/usr/local/lib/rustlib/uninstall.sh"
+  when: upgrade_rust|bool
+  tags:
+    - rust
 - name: Download Rust installer
   get_url:
     url: https://static.rust-lang.org/rustup.sh
     dest: "{{ rust_installer_path }}"
     mode: 0700
-  when: not rust_installed.stat.exists
+  when: not rust_installed.stat.exists or upgrade_rust|bool
   tags:
     - rust
 - name: Install Rust
-  command: "{{ rust_installer_path }}"
-  when: not rust_installed.stat.exists
+  command: "{{ rust_installer_path }} -y"
+  when: not rust_installed.stat.exists or upgrade_rust|bool
   tags:
     - rust
 - name: Project setup
