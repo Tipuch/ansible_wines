@@ -19,13 +19,13 @@
   tags:
     - rust
 - name: Uninstall old Rust version
-  command: "/usr/local/lib/rustlib/uninstall.sh"
+  command: "/root/.cargo/bin/rustup self uninstall -y"
   when: upgrade_rust|bool
   tags:
     - rust
 - name: Download Rust installer
   get_url:
-    url: https://static.rust-lang.org/rustup.sh
+    url: https://sh.rustup.rs
     dest: "{{ rust_installer_path }}"
     mode: 0700
   when: not rust_installed.stat.exists or upgrade_rust|bool
