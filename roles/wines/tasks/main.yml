@@ -7,7 +7,7 @@
     - libssl-dev
     - pkg-config
 - stat:
-    path: /usr/local/bin/rustc
+    path: "/home/{{ ansible_remote_user }}/.cargo/bin/rustc"
   register: rust_installed
   tags:
     - rust
@@ -19,8 +19,9 @@
   tags:
     - rust
 - name: Uninstall old Rust version
-  command: "/root/.cargo/bin/rustup self uninstall -y"
-  when: upgrade_rust|bool
+  command: "/home/{{ ansible_remote_user }}/.cargo/bin/rustup self uninstall -y"
+  when: upgrade_rust|bool and rust_installed.stat.exists
+  become: "{{ ansible_remote_user }}"
   tags:
     - rust
 - name: Download Rust installer
@@ -28,12 +29,29 @@
     url: https://sh.rustup.rs
     dest: "{{ rust_installer_path }}"
     mode: 0700
+    owner: "{{ ansible_remote_user }}"
   when: not rust_installed.stat.exists or upgrade_rust|bool
   tags:
     - rust
-- name: Install Rust
+- name: Install Rust tools
   command: "{{ rust_installer_path }} -y"
   when: not rust_installed.stat.exists or upgrade_rust|bool
+  become: "{{ ansible_remote_user }}"
+  tags:
+    - rust
+- name: Install Rust stable
+  shell: "rustup install stable && rustup default stable"
+  become: "{{ ansible_remote_user }}"
+  when: not rust_installed.stat.exists or upgrade_rust|bool
+  environment:
+    PATH: '/home/{{ ansible_remote_user }}/.cargo/bin:{{ ansible_env.PATH }}'
+  tags:
+    - rust
+- name: set environment for ansible remote user
+  copy:
+    dest: "/home/{{ ansible_remote_user }}/.config/fish/conf.d/rust.fish"
+    content: "set -gx PATH /home/{{ ansible_remote_user }}/.cargo/bin $PATH"
+    owner: "{{ ansible_remote_user }}"
   tags:
     - rust
 - name: Project setup
