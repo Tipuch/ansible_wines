@@ -1,5 +1,6 @@
 [program:{{ project_name }}]
 command = {{ project_path }}/target/release/{{ project_name }}
+directory = {{ project_path }}
 user = {{ project_user }}
 stdout_logfile = {{ application_log_file }}
 redirect_stderr = true
