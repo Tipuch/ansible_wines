@@ -81,4 +81,11 @@
   environment:
     PATH: '/home/{{ ansible_remote_user }}/.cargo/bin:{{ ansible_env.PATH }}'
   tags: deploy
+- name: Restart application
+  supervisorctl:
+    name: "{{ project_name }}"
+    state: restarted
+  when: restart_application|bool
+  tags:
+    - deploy
   

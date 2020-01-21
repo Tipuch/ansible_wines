@@ -1,2 +1,3 @@
 rust_installer_path: "/home/{{ ansible_remote_user }}/rustup.sh"
 upgrade_rust: false
+restart_application: false
